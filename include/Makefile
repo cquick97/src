@@ -29,6 +29,8 @@ INCS=	a.out.h ar.h assert.h bitstring.h complex.h cpio.h _ctype.h ctype.h \
 	uchar.h ulimit.h unistd.h utime.h utmpx.h uuid.h varargs.h \
 	wchar.h wctype.h wordexp.h xlocale.h
 
+INCS+=	secadm.h
+
 .PATH: ${.CURDIR}/../contrib/libc-vis
 INCS+=	vis.h
 

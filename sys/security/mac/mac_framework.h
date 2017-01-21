@@ -73,6 +73,7 @@ struct mbuf;
 struct mount;
 struct msg;
 struct msqid_kernel;
+struct prison;
 struct proc;
 struct semid_kernel;
 struct shmfd;
@@ -443,6 +444,8 @@ int	mac_vnode_execve_will_transition(struct ucred *cred,
 	    struct image_params *imgp);
 void	mac_vnode_relabel(struct ucred *cred, struct vnode *vp,
 	    struct label *newlabel);
+
+void	mac_prison_destroy(struct prison *pr);
 
 /*
  * Calls to help various file systems implement labeling functionality using

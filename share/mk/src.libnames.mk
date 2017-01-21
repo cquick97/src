@@ -149,6 +149,7 @@ _LIBRARIES=	\
 		rtld_db \
 		sbuf \
 		sdp \
+		secadm \
 		sm \
 		smb \
 		ssl \

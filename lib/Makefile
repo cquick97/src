@@ -92,6 +92,7 @@ SUBDIR=	${SUBDIR_ORDERED} \
 	${_librtld_db} \
 	libsbuf \
 	${_libsdp} \
+	libsecadm \
 	${_libsm} \
 	libsmb \
 	${_libsmdb} \

@@ -86,6 +86,7 @@ struct mount;
 struct msg;
 struct msqid_kernel;
 struct pipepair;
+struct prison;
 struct proc;
 struct sbuf;
 struct semid_kernel;
@@ -670,6 +671,8 @@ typedef int	(*mpo_vnode_setlabel_extattr_t)(struct ucred *cred,
 		    struct vnode *vp, struct label *vplabel,
 		    struct label *intlabel);
 
+typedef void	(*mpo_prison_destroy_t)(struct prison *prison);
+
 struct mac_policy_ops {
 	/*
 	 * Policy module operations.
@@ -962,6 +965,7 @@ struct mac_policy_ops {
 	mpo_vnode_internalize_label_t		mpo_vnode_internalize_label;
 	mpo_vnode_relabel_t			mpo_vnode_relabel;
 	mpo_vnode_setlabel_extattr_t		mpo_vnode_setlabel_extattr;
+	mpo_prison_destroy_t			mpo_prison_destroy;
 };
 
 /*

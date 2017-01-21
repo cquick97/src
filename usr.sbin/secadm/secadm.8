@@ -1,0 +1,301 @@
+.\"-
+.\" Copyright (c) 2016 Shawn Webb <shawn.webb@hardenedbsd.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.Dd September 21, 2016
+.Dt SECADM 8
+.Os
+.Sh NAME
+.Nm secadm
+.Nd HardenedBSD Security Administration
+.Sh SYNOPSIS
+.Nm
+.Cm list
+.Op Cm -f json|ucl|xml
+.Nm
+.Cm load Ar file
+.Nm
+.Cm validate Ar file
+.Nm
+.Cm add Ar integriforce|pax Ar rule
+.Nm
+.Cm del Ar id
+.Nm
+.Cm enable Ar id
+.Nm
+.Cm disable Ar id
+.Nm
+.Cm flush
+.Nm
+.Cm set
+.Op Cm -Ww
+.Nm
+.Cm get
+.Nm
+.Cm tpe
+.Op Cm -AITaitg
+.Nm
+.Cm version
+.Sh DESCRIPTION
+The
+.Nm
+utility provides the ability to toggle individual exploit mitigation
+features on a per-binary, per-jail basis.
+.Nm
+also provides the ability called Integriforce to enforce hash-based
+signatures for binaries and their dependant shared objects
+.Pp
+Integriforce can now be set in whitelisting mode, meaning that when
+there is at least one Integriforce rule enabled, all desired
+applications and their dependent shared objects must also have rules.
+If an application and its shared objects are not included in the
+ruleset, execution of that application will be disallowed.
+This also affects shared objects loaded via
+.Xr dlopen 3 .
+.Pp
+.Nm
+uses libucl to read rules from a configuration file or rules can be
+added one-at-a-time via command-line arguments.
+Configuration file syntax is outlined in
+.Xr secadm.rules 5 .
+.Pp
+The arguments are as follows:
+.Bl -tag -width indent -offset indent
+.It Xo
+.Cm list Op -f json|ucl|xml
+.Xc
+List the set of loaded rules.
+.It Xo
+.Cm load Ar file
+.Xc
+Load rules from
+.Cm file .
+.It Xo
+.Cm validate Ar file
+.Xc
+Validate rules in
+.Cm file .
+.It Xo
+.Cm add Ar integriforce|pax Ar rule
+.Xc
+Add an individual rule to the loaded ruleset.
+.Pp
+If adding a pax rule,
+the form of the command is
+.Nm
+.Cm add Ar pax Ar path Ar flags .
+.Pp
+The
+.Ar flags
+argument can be any of the following:
+.Bl -dash -compact
+.It
+Flag: A
+.D1
+Description: Enable ASLR
+.It
+Flag: a
+.D1
+Description: Disable ASLR
+.It
+Flag: B
+.D1
+Description: Enable MAP32BIT protection
+.It
+Flag: b
+.D1
+Description: Disable MAP32BIT protection
+.It
+Flag: L
+.D1
+Description: Enable SHLIBRANDOM
+.It
+Flag: l
+.D1
+Description: Disable SHLIBRANDOM
+.It
+Flag: M
+.D1
+Description: Enable MPROTECT
+.It
+Flag: m
+.D1
+Description: Disable MPROTECT
+.It
+Flag: P
+.D1
+Description: Enable PAGEEXEC
+.It
+Flag: p
+.D1
+Description: Disable PAGEEXEC
+.It
+Flag: S
+.D1
+Description: Enable SEGVGUARD
+.It
+Flag: s
+.D1
+Description: Disable SEGVGUARD
+.El
+.Pp
+If adding an integriforce rule,
+the form of the command is
+.Nm
+.Cm add Ar integriforce Ar path Ar type Ar mode Ar hash .
+.Pp
+The
+.Ar mode
+flag specifies either 
+.Dq soft
+or 
+.Dq hard
+mode.
+Soft mode allows application execution on hash mismatch with a warning
+message printed to syslog.
+Hard mode will disallow application execution on hash mismatch, still
+with a warning printed to syslog.
+.Pp
+Currently-supported hash types are
+.Xr sha1 1
+and
+.Xr sha256 1 .
+.Pp
+For both integriforce and pax rules, the
+.Ar path
+argument specifies the fully-qualified path of the file for which this
+rule pertains.
+The path must be a regular file.
+.It Xo
+.Cm del Ar id
+.Xc
+Delete rule
+.Ar id
+.It Xo
+.Cm enable Ar id
+.Xc
+Enable rule
+.Ar id .
+.It Xo
+.Cm disable Ar id
+.Xc
+Disable rule
+.Ar id .
+.It Xo
+.Cm flush
+.Xc
+Flush the ruleset.
+.It Xo
+.Cm set Op -Ww
+.Xc
+Set Integriforce whitelist mode on with
+.Op -W
+and off with
+.Op -w .
+Default is off.
+Whitelist mode turns Integriforce into an application whitelist
+implementation.
+If an application (and all its shared objects it depends on) are not
+listed in the loaded Integriforce ruleset, execution of that
+application is not allowed.
+.Xr execve 2
+will return EPERM.
+If whitelist mode is turned on and no Integriforce rules are loaded,
+whitelist mode is effectively ignored.
+Whitelist mode is only effective when at least one Integriforce rule
+is loaded.
+.It Xo
+.Cm get
+.Xc
+Get the status of Integriforce whitelist mode and TPE configuration.
+.It Xo
+.Cm tpe Op -AITaitg
+.Xc
+Configure Trusted Path Excution (TPE).
+Enable TPE with
+.Op -T
+and disable TPE with
+.Op -t .
+Enable TPE for all users with
+.Op -A
+and disable TPE for all users with
+.Op -a .
+By default, TPE is only enabled for the wheel group.
+Set the numeric Group ID (GID) with the
+.Op -g
+option.
+Invert GID logic with the
+.Op -I
+option and apply normal logic with the
+.Op -i
+option.
+Non-inverted (normal) logic is the default.
+.It Xo
+.Cm version
+.Xc
+Print version information.
+.El
+.Sh EXAMPLES
+To load the kernel module:
+.Bd -literal -offset indent
+kldload secadm
+.Ed
+.Pp
+To add a pax rule to disable PAGEEXEC and MPROTECT for
+.Dq /usr/local/share/chromium/chrome :
+.Bd -literal -offset indent
+secadm add pax /usr/local/share/chromium/chrome mp
+.Ed
+.Pp
+To add an integriforce rule in hard enforcement mode for
+.Dq /bin/ls :
+.Bd -literal -offset indent
+secadm add integriforce /bin/ls sha256 hard `sha256 -q /bin/ls`
+.Ed
+.Pp
+To add an integriforce rule for all of the shared object
+.Dq bin ls
+depends on:
+.Bd -literal -offset indent
+for file in `ldd -f '%p\\n' /bin/ls`; do
+	file=`realpath $file`
+	secadm add integriforce $file sha256 hard \\
+		`sha256 -q $file`
+done
+.Ed
+.Sh SEE ALSO
+.Xr sha1 1,
+.Xr sha256 1 ,
+.Xr execve 2 ,
+.Xr secadm.rules 5 ,
+.Xr mac 9
+.Sh AUTHORS
+.An Shawn Webb
+wrote the first iteration of
+.Nm
+and
+.An Brian Salcedo
+rewrote major portions.
+This manual page was written by
+.An Shawn Webb .

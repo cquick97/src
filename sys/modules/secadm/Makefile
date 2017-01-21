@@ -1,0 +1,12 @@
+KMOD=	secadm
+SRCS=	secadm.c \
+	secadm_mac.c \
+	secadm_sysctl.c \
+	secadm_vnode.c \
+	integriforce.c \
+	tpe.c \
+	vnode_if.h
+
+CFLAGS+=	-I${.CURDIR}/../../../include
+
+.include <bsd.kmod.mk>

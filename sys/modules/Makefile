@@ -325,6 +325,7 @@ SUBDIR=	\
 	${_scsi_low} \
 	sdhci \
 	sdhci_pci \
+	secadm \
 	sem \
 	send \
 	${_sf} \
